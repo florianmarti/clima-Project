@@ -55,7 +55,8 @@ The application will be available at `http://localhost:5173`.
 
 ## ✍️ Author
 
-- *Florian Marti - [Tu Perfil de GitHub](https://github.com/Florian Marti)
+- *Florian Marti - https://github.com/florianmarti
+(https://github.com/florianmarti)(https://github.com/Florian Marti)
 
 ---
 
