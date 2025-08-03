@@ -1,6 +1,6 @@
 # Weather App - A Modern React Weather Application
 
-![Weather App Screenshot] https://i.ibb.co/5X61Y6FW/Captura-desde-2025-08-03-08-47-01.png
+Weather App Screenshot https://i.ibb.co/5X61Y6FW/Captura-desde-2025-08-03-08-47-01.png
 
 A modern, responsive weather application built with React and Material UI. This project demonstrates best practices in a real-world scenario, including component-based architecture, API integration, and advanced state management.
 
