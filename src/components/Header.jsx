@@ -12,7 +12,7 @@ function Header() {
         Aplicación del Clima
       </Typography>
       <Typography variant="body1">
-        EL lugar donde el clima se encuentra con la tecnología.
+        El lugar donde el clima se encuentra con la tecnología.
       </Typography>
     </Container>
   );
