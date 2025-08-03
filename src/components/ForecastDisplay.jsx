@@ -1,7 +1,11 @@
+ 
+
 import React from 'react';
 import { Box, Typography, Grid, Card, CardContent, Divider } from '@mui/material';
 
-function ForecastDisplay({ data }) {
+const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
+
+function ForecastDisplay({ data, isCelsius }) {
   if (!data || !data.list) {
     return <Typography color="error">Pronóstico no disponible.</Typography>;
   }
@@ -15,6 +19,8 @@ function ForecastDisplay({ data }) {
     const options = { weekday: 'short' };
     return date.toLocaleDateString('es-ES', options);
   };
+  
+  const unit = isCelsius ? '°C' : '°F';
 
   return (
     <Box mt={4} mb={2}>
@@ -22,10 +28,11 @@ function ForecastDisplay({ data }) {
         Pronóstico de 5 días
       </Typography>
       <Divider sx={{ mb: 2 }} />
-      <Grid container spacing={2} justifyContent="center">
+      <Grid container spacing={2} justifyContent="center" columns={10}>
         {dailyForecasts.map((forecast) => (
           <Grid
             key={forecast.dt}
+            
           >
             <Card raised>
               <CardContent>
@@ -38,7 +45,7 @@ function ForecastDisplay({ data }) {
                   style={{ width: '50px' }}
                 />
                 <Typography variant="body2">
-                  {Math.round(forecast.main.temp)}°C
+                  {isCelsius ? Math.round(forecast.main.temp) : Math.round(toFahrenheit(forecast.main.temp))}{unit}
                 </Typography>
                 <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
                   {forecast.weather[0].description}

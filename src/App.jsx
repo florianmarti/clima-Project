@@ -5,10 +5,11 @@ import Header from './components/Header';
 import WeatherContainer from './components/WeatherContainer';
 import SearchBar from './components/SearchBar';
 import WeatherDisplay from './components/WeatherDisplay';
-import ForecastDisplay from './components/ForecastDisplay'; // Importamos el nuevo componente
+import ForecastDisplay from './components/ForecastDisplay';
+import UnitToggle from './components/UnitToggle';
 import { CircularProgress, Typography } from '@mui/material';
 
-// Función auxiliar para determinar la clase de CSS del fondo
+// --- Función auxiliar para determinar la clase de CSS del fondo ---
 const getBackgroundClass = (weatherMain) => {
   if (!weatherMain) return '';
   const lowerCaseWeather = weatherMain.toLowerCase();
@@ -21,14 +22,36 @@ const getBackgroundClass = (weatherMain) => {
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [weatherCity, setWeatherCity] = useState(null);
+  const [weatherSearch, setWeatherSearch] = useState({ city: null, coords: null });
   const [weatherData, setWeatherData] = useState(null);
-  const [forecastData, setForecastData] = useState(null); // Nuevo estado para el pronóstico
+  const [forecastData, setForecastData] = useState(null);
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isCelsius, setIsCelsius] = useState(true);
 
-  // useEffect para obtener las sugerencias del buscador
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setWeatherSearch({
+            city: null,
+            coords: {
+              lat: position.coords.latitude,
+              lon: position.coords.longitude,
+            },
+          });
+        },
+        (error) => {
+          console.error(error);
+          setError('No se pudo obtener la ubicación. Por favor, usa el buscador.');
+        }
+      );
+    } else {
+      setError('La geolocalización no está soportada por este navegador.');
+    }
+  }, []);
+
   useEffect(() => {
     const fetchCitySuggestions = async () => {
       setCitySuggestions([]);
@@ -54,19 +77,27 @@ function App() {
     fetchCitySuggestions();
   }, [searchQuery]);
 
-  // useEffect para obtener el clima actual y el pronóstico (código corregido)
   useEffect(() => {
     const fetchWeatherData = async () => {
-      if (!weatherCity) {
+      const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+      let currentWeatherUrl = null;
+      let forecastUrl = null;
+
+      if (weatherSearch.coords) {
+        const { lat, lon } = weatherSearch.coords;
+        currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+      } else if (weatherSearch.city) {
+        currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${weatherSearch.city}&appid=${apiKey}&units=metric&lang=es`;
+        forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${weatherSearch.city}&appid=${apiKey}&units=metric&lang=es`;
+      } else {
         setWeatherData(null);
         setForecastData(null);
         return;
       }
+      
       setIsLoading(true);
       setError('');
-      const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
-      const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${weatherCity}&appid=${apiKey}&units=metric&lang=es`;
-      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${weatherCity}&appid=${apiKey}&units=metric&lang=es`;
       try {
         const [currentWeatherResponse, forecastResponse] = await Promise.all([
           fetch(currentWeatherUrl),
@@ -89,9 +120,8 @@ function App() {
       }
     };
     fetchWeatherData();
-  }, [weatherCity]);
+  }, [weatherSearch]);
 
-  // Lógica para renderizar el contenido
   const renderContent = () => {
     if (isLoading) {
       return <CircularProgress sx={{ mt: 5 }} />;
@@ -102,8 +132,8 @@ function App() {
     if (weatherData && forecastData) {
       return (
         <>
-          <WeatherDisplay data={weatherData} />
-          <ForecastDisplay data={forecastData} /> {/* Agregamos el nuevo componente */}
+          <WeatherDisplay data={weatherData} isCelsius={isCelsius} />
+          <ForecastDisplay data={forecastData} isCelsius={isCelsius} />
         </>
       );
     }
@@ -117,10 +147,11 @@ function App() {
       <Header />
       <WeatherContainer backgroundClass={backgroundClass}>
         <SearchBar
-          onSearch={setWeatherCity}
+          onSearch={(city) => setWeatherSearch({ city, coords: null })}
           onInputChange={setSearchQuery}
           suggestions={citySuggestions}
         />
+        <UnitToggle isCelsius={isCelsius} setIsCelsius={setIsCelsius} />
         {renderContent()}
       </WeatherContainer>
     </>

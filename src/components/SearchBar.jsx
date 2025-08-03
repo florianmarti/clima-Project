@@ -1,4 +1,4 @@
-// src/components/SearchBar.jsx
+ 
 
 import React from 'react';
 import { Box, Button, TextField, Autocomplete } from '@mui/material';
