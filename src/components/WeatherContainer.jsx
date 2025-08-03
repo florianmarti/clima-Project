@@ -3,15 +3,15 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
 
-function WeatherContainer({ children }) {
+function WeatherContainer({ children, backgroundClass }) {
   return (
     <Box
+      className={backgroundClass} // Agregamos la clase del fondo
       sx={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        bgcolor: '#f5f5f5', // Un fondo gris claro para la página
       }}
     >
       <Paper
